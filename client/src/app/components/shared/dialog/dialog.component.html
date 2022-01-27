@@ -1,0 +1,63 @@
+<h1 mat-dialog-title>Row Action :: <strong>{{action}}</strong></h1>
+<form [formGroup]="form" *ngIf="form">
+  <div mat-dialog-content>
+    <ng-container *ngIf="action == 'Delete'; else formBlock">
+      Are you sure that you want to permanently delete this entity?
+    </ng-container>
+    <ng-template #formBlock>
+      <ng-container *ngFor="let formElement of localData.form">
+        <!-- Input element: -->
+        <ng-container *ngIf="formElement.type === 'input'">
+          <mat-form-field appearance="fill">
+            <mat-label> {{ formElement.label }} </mat-label>
+            <input matInput [formControlName]="formElement.controlName">
+          </mat-form-field>
+        </ng-container>
+        <!-- Select element:  -->
+        <ng-container *ngIf="formElement.type === 'select'">
+          <mat-form-field appearance="fill">
+            <mat-label> {{ formElement.label }} </mat-label>
+            <mat-select [formControlName]="formElement.controlName">
+              <mat-option *ngFor="let option of formElement.options" [value]="option.id" >
+                {{option.name}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </ng-container>
+        <!-- Multiple select element -->
+        <ng-container *ngIf="formElement.type === 'multipleSelect'">
+          <mat-form-field appearance="fill">
+            <mat-label> {{ formElement.label }} </mat-label>
+            <mat-select [formControlName]="formElement.controlName" multiple>
+              <mat-option *ngFor="let option of formElement.options" [value]="option.id" >
+                {{option.name}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </ng-container>
+        <!-- Date element: -->
+        <ng-container *ngIf="formElement.type === 'date'">
+          <mat-form-field appearance="fill">
+            <mat-label>{{ formElement.label }}</mat-label>
+            <input matInput [matDatepicker]="picker" [formControlName]="formElement.controlName" >
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+        </ng-container>
+        <!-- Add error: -->
+        <div class="error" *ngIf="form.get(formElement.controlName)?.invalid
+                                    && form.get(formElement.controlName)?.errors
+                                    && (form.get(formElement.controlName)?.dirty ||  form.get(formElement.controlName)?.touched)">
+          <small class="text-danger"
+                 *ngIf="form.get(formElement.controlName)?.hasError('required')">
+            This field is required.
+          </small>
+        </div>
+      </ng-container>
+    </ng-template>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-button (click)="doAction()" [disabled]="form.invalid" mat-flat-button color="primary">{{action}}</button>
+    <button mat-button (click)="closeDialog()" mat-flat-button color="warn">Cancel</button>
+  </div>
+</form>
